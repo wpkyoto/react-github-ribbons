@@ -2,6 +2,8 @@
 
 Simple React Component to add GitHub Ribbon for your React Application.
 
+Ref: https://github.blog/2008-12-19-github-ribbons/
+
 ## Install
 
 ```bash
