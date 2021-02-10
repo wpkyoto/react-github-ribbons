@@ -42,6 +42,6 @@
     "react-dom": "16.14.0",
     "tsdx": "0.14.1",
     "tslib": "1.14.1",
-    "typescript": "3.9.7"
+    "typescript": "3.9.9"
   }
 }
