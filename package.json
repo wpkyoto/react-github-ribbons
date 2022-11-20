@@ -36,7 +36,7 @@
   "module": "dist/react-github-ribbons.esm.js",
   "devDependencies": {
     "@types/react": "16.14.2",
-    "@types/react-dom": "16.9.10",
+    "@types/react-dom": "18.0.9",
     "husky": "4.3.7",
     "react": "16.14.0",
     "react-dom": "16.14.0",
