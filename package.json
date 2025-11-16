@@ -1,47 +1,49 @@
 {
+  "name": "react-github-ribbons",
   "version": "0.1.0",
   "license": "MIT",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
-  "engines": {
-    "node": ">=10"
-  },
-  "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
-    "test": "tsdx test --passWithNoTests",
-    "lint": "tsdx lint",
-    "prepare": "tsdx build"
-  },
-  "peerDependencies": {
-    "react": ">=16"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
+  "author": "Hidetaka Okamoto",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
     }
   },
-  "prettier": {
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5"
+  "files": ["dist", "src"],
+  "engines": {
+    "node": ">=18"
   },
-  "name": "react-github-ribbons",
-  "author": "Hidetaka Okamoto",
-  "module": "dist/react-github-ribbons.esm.js",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "tsc && vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "prepare": "husky"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
   "devDependencies": {
-    "@types/react": "16.14.2",
-    "@types/react-dom": "16.9.10",
-    "husky": "4.3.7",
-    "react": "16.14.0",
-    "react-dom": "16.14.0",
-    "tsdx": "0.14.1",
-    "tslib": "1.14.1",
-    "typescript": "3.9.7"
+    "@biomejs/biome": "^1.9.4",
+    "@testing-library/react": "^16.0.1",
+    "@types/node": "^22.9.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "happy-dom": "^15.11.5",
+    "husky": "^9.1.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vite-plugin-dts": "^4.3.0",
+    "vitest": "^2.1.5"
   }
 }

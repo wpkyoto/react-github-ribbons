@@ -78,38 +78,46 @@ const App = () => {
 };
 ```
 
-## Commands
+## Development
 
-TSDX scaffolds your new library inside `/src`, and also sets up a [Parcel-based](https://parceljs.org) playground for it inside `/example`.
+This project uses modern tooling:
 
-The recommended workflow is to run TSDX in one terminal:
+- **Vite** - Fast build tool and dev server
+- **Vitest** - Lightning-fast unit testing
+- **Biome** - Fast linter and formatter
+- **TypeScript 5** - Type safety
+- **React 18** - Latest React features
 
-```bash
-npm start # or yarn start
-```
-
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
-
-Then run the example inside another:
+### Available Scripts
 
 ```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
+# Development mode (watch mode)
+npm run dev
+
+# Build the library
+npm run build
+
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Lint code
+npm run lint
+
+# Lint and auto-fix
+npm run lint:fix
+
+# Format code
+npm run format
 ```
 
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure TSDX is running in watch mode like we recommend above. **No symlinking required**, [we use Parcel's aliasing](https://github.com/palmerhq/tsdx/pull/88/files).
+### Development Workflow
 
-To do a one-off build, use `npm run build` or `yarn build`.
+1. Make changes in `/src`
+2. Run `npm run dev` to build in watch mode
+3. Run `npm test` to verify tests pass
+4. Run `npm run lint` to check code quality
 
-To run tests, use `npm test` or `yarn test`.
-
-## Using the Playground
-
-```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
-```
-
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure TSDX is running in watch mode like we recommend above. **No symlinking required**!
+The library will be built to `/dist` with both ESM and CommonJS formats.
