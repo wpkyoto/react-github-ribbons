@@ -34,10 +34,10 @@ export const getRibbonImageURL = (
       return `https://github.blog/wp-content/uploads/2008/12/forkme_${position}_white_ffffff.png?resize=149%2C149`;
     case 'black':
       return `https://github.blog/wp-content/uploads/2008/12/forkme_${position}_darkblue_121621.png?resize=149%2C149`;
-    default:
-      let t: never;
-      t = color;
-      throw new Error('unsuported type' + t);
+    default: {
+      const t: never = color;
+      throw new Error(`unsuported type${t}`);
+    }
   }
 };
 const styleBase: React.CSSProperties = {
@@ -50,10 +50,10 @@ const styleBase: React.CSSProperties = {
 export const GitHubRibbon = (props: GitHubRibbonProps) => {
   const { color, style } = props;
   const position = props.position || 'right';
-  const src = React.useMemo(() => getRibbonImageURL(position, color), [
-    position,
-    color,
-  ]);
+  const src = React.useMemo(
+    () => getRibbonImageURL(position, color),
+    [position, color]
+  );
   const ribbonStyle = React.useMemo(() => {
     return {
       ...styleBase,
