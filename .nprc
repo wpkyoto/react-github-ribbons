@@ -1,0 +1,7 @@
+{
+  "yarn": false,
+  "anyBranch": false,
+  "2fa": false,
+  "contents": ".",
+  "cleanup": true
+}

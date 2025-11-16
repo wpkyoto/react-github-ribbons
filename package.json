@@ -13,7 +13,10 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "engines": {
     "node": ">=18"
   },
@@ -26,7 +29,9 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prepublishOnly": "npm run lint && npm run build && npm test",
+    "release": "np"
   },
   "peerDependencies": {
     "react": ">=18"
@@ -41,6 +46,7 @@
     "@vitest/coverage-v8": "^2.1.5",
     "happy-dom": "^15.11.5",
     "husky": "^9.1.7",
+    "np": "^10.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.6.3",
