@@ -121,3 +121,58 @@ npm run format
 4. Run `npm run lint` to check code quality
 
 The library will be built to `/dist` with both ESM and CommonJS formats.
+
+## Release
+
+This project uses automated release tooling with security best practices.
+
+### Publishing a New Version
+
+```bash
+npm run release
+```
+
+The `np` package will guide you through:
+- Version selection (patch/minor/major)
+- Running tests, lint, and build
+- Creating git tags
+- Publishing to npm with provenance
+- Creating GitHub releases
+
+### Security Features
+
+Our release process includes multiple security layers:
+
+- ✅ **Environment Protection** - Requires manual approval for npm publish
+- ✅ **Tag Verification** - Validates semantic versioning format
+- ✅ **Version Matching** - Ensures package.json and git tag alignment
+- ✅ **Dependency Audits** - Scans for vulnerabilities before publish
+- ✅ **Build Verification** - Validates all required artifacts exist
+- ✅ **NPM Provenance** - Cryptographically signed build attestations
+- ✅ **Pinned Actions** - GitHub Actions locked to SHA hashes
+
+For complete security details, see [SECURITY.md](./SECURITY.md).
+
+### First-time Setup (Maintainers)
+
+1. **Configure npm-publish environment** in GitHub:
+   ```
+   Settings → Environments → New environment: "npm-publish"
+   - Add required reviewers
+   - Set deployment branch rule: "Tags only"
+   ```
+
+2. **Add NPM_TOKEN secret**:
+   ```
+   Settings → Secrets → New repository secret
+   Name: NPM_TOKEN
+   Value: [Your npm automation token]
+   ```
+
+3. **Enable npm 2FA**:
+   ```bash
+   npm profile enable-2fa auth-and-writes
+   ```
+
+4. **Set up branch protection** for `main`/`master`
+5. **Set up tag protection** for `v*` pattern

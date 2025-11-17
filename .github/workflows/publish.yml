@@ -8,23 +8,55 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # 環境保護: production環境を使用（要手動承認設定）
+    environment:
+      name: npm-publish
+      url: https://www.npmjs.com/package/react-github-ribbons
+
+    # 最小権限原則
     permissions:
       contents: read
-      id-token: write
+      id-token: write  # provenance署名用
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          # タグの完全な履歴を取得
+          fetch-depth: 0
+
+      - name: Verify tag format
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          if ! [[ "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+            echo "Error: Invalid tag format. Expected vX.Y.Z or vX.Y.Z-prerelease"
+            exit 1
+          fi
+          echo "Tag format verified: $TAG_NAME"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180ac39da4 # v4.0.2
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
+      - name: Verify package-lock.json integrity
+        run: |
+          if ! npm ci --dry-run; then
+            echo "Error: package-lock.json integrity check failed"
+            exit 1
+          fi
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --audit=true
+
+      - name: Audit dependencies
+        run: |
+          npm audit --audit-level=high || {
+            echo "Warning: High severity vulnerabilities detected"
+            # 本番環境では exit 1 を検討
+          }
 
       - name: Lint
         run: npm run lint
@@ -35,7 +67,43 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Verify package contents
+        run: |
+          # distディレクトリが存在し、空でないことを確認
+          if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
+            echo "Error: dist directory is missing or empty"
+            exit 1
+          fi
+          # 必須ファイルの存在確認
+          if [ ! -f "dist/index.js" ] || [ ! -f "dist/index.cjs" ] || [ ! -f "dist/index.d.ts" ]; then
+            echo "Error: Required build artifacts are missing"
+            exit 1
+          fi
+
+      - name: Verify package version matches tag
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "Error: Tag version ($TAG_VERSION) does not match package.json version ($PACKAGE_VERSION)"
+            exit 1
+          fi
+          echo "Version verified: $PACKAGE_VERSION"
+
       - name: Publish to npm
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const tagName = context.ref.replace('refs/tags/', '');
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tagName,
+              name: tagName,
+              generate_release_notes: true,
+            });
