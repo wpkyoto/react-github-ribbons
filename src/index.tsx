@@ -1,4 +1,8 @@
-import * as React from 'react';
+import {
+  type AnchorHTMLAttributes,
+  type CSSProperties,
+  forwardRef,
+} from 'react';
 
 export type GitHubRibbonColor =
   | 'red'
@@ -8,71 +12,70 @@ export type GitHubRibbonColor =
   | 'grey'
   | 'white';
 export type GitHubRibbonPosition = 'left' | 'right';
-export type GitHubRibbonProps = React.DetailedHTMLProps<
-  React.AnchorHTMLAttributes<HTMLAnchorElement>,
-  HTMLAnchorElement
+export type GitHubRibbonProps = Omit<
+  AnchorHTMLAttributes<HTMLAnchorElement>,
+  'color'
 > & {
   href: string;
   color?: GitHubRibbonColor;
   position?: GitHubRibbonPosition;
+  /** Alternative text of the ribbon image. Defaults to "Fork me on GitHub". */
+  alt?: string;
 };
+
+const IMAGE_BASE_URL = 'https://github.blog/wp-content/uploads/2008/12/forkme_';
+
+// A Map (not an object literal) so inherited keys like "constructor" are not
+// treated as supported colors.
+const imageSuffixes = new Map<GitHubRibbonColor, string>([
+  ['green', 'green_007200.png?resize=149%2C149'],
+  ['red', 'red_aa0000.png?resize=149%2C149'],
+  ['orange', 'orange_ff7600.png'],
+  ['grey', 'gray_6d6d6d.png?resize=149%2C149'],
+  ['white', 'white_ffffff.png?resize=149%2C149'],
+  ['black', 'darkblue_121621.png?resize=149%2C149'],
+]);
 
 export const getRibbonImageURL = (
   position: GitHubRibbonPosition,
   color: GitHubRibbonColor = 'black'
 ): string => {
-  switch (color) {
-    case 'green':
-      return `https://github.blog/wp-content/uploads/2008/12/forkme_${position}_green_007200.png?resize=149%2C149`;
-    case 'red':
-      return `https://github.blog/wp-content/uploads/2008/12/forkme_${position}_red_aa0000.png?resize=149%2C149`;
-    case 'orange':
-      return `https://github.blog/wp-content/uploads/2008/12/forkme_${position}_orange_ff7600.png`;
-    case 'grey':
-      return `https://github.blog/wp-content/uploads/2008/12/forkme_${position}_gray_6d6d6d.png?resize=149%2C149`;
-    case 'white':
-      return `https://github.blog/wp-content/uploads/2008/12/forkme_${position}_white_ffffff.png?resize=149%2C149`;
-    case 'black':
-      return `https://github.blog/wp-content/uploads/2008/12/forkme_${position}_darkblue_121621.png?resize=149%2C149`;
-    default: {
-      const t: never = color;
-      throw new Error(`unsuported type${t}`);
-    }
+  const suffix = imageSuffixes.get(color);
+  if (suffix === undefined) {
+    throw new Error(`unsupported color: ${color}`);
   }
-};
-const styleBase: React.CSSProperties = {
-  position: 'absolute',
-  top: 0,
-  right: 0,
-  border: 0,
+  return `${IMAGE_BASE_URL}${position}_${suffix}`;
 };
 
-export const GitHubRibbon = (props: GitHubRibbonProps) => {
-  const { color, style } = props;
-  const position = props.position || 'right';
-  const src = React.useMemo(
-    () => getRibbonImageURL(position, color),
-    [position, color]
-  );
-  const ribbonStyle = React.useMemo(() => {
-    return {
-      ...styleBase,
+export const GitHubRibbon = forwardRef<HTMLAnchorElement, GitHubRibbonProps>(
+  function GitHubRibbon(
+    {
+      color = 'black',
+      position = 'right',
+      alt = 'Fork me on GitHub',
+      style,
+      ...anchorProps
+    },
+    ref
+  ) {
+    const ribbonStyle: CSSProperties = {
+      position: 'absolute',
+      top: 0,
       [position]: 0,
+      border: 0,
       ...style,
     };
-  }, [position, style]);
-  return (
-    <a style={ribbonStyle} {...props}>
-      <img
-        width="149"
-        height="149"
-        src={src}
-        className="attachment-full size-full"
-        alt="Fork me on GitHub"
-        data-recalc-dims="1"
-      />
-    </a>
-  );
-};
+    return (
+      <a {...anchorProps} ref={ref} style={ribbonStyle}>
+        <img
+          width={149}
+          height={149}
+          src={getRibbonImageURL(position, color)}
+          alt={alt}
+        />
+      </a>
+    );
+  }
+);
 
 export default GitHubRibbon;

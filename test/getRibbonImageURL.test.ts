@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getRibbonImageURL } from '../src';
+import { type GitHubRibbonColor, getRibbonImageURL } from '../src';
 
 describe('getRibbonImageURL', () => {
   describe('position: right', () => {
@@ -114,5 +114,23 @@ describe('getRibbonImageURL', () => {
       // Assert
       expect(result).toContain('forkme_right_darkblue_121621');
     });
+  });
+
+  describe('unsupported color', () => {
+    it('should throw for a color outside the supported set', () => {
+      expect(() =>
+        // @ts-expect-error: runtime guard for untyped callers
+        getRibbonImageURL('right', 'purple')
+      ).toThrow('unsupported color: purple');
+    });
+
+    it.each(['constructor', 'toString', '__proto__'])(
+      'should throw for inherited object property %s',
+      (color) => {
+        expect(() =>
+          getRibbonImageURL('right', color as GitHubRibbonColor)
+        ).toThrow(`unsupported color: ${color}`);
+      }
+    );
   });
 });

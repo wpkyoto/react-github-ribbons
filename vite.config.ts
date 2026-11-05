@@ -13,7 +13,7 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.tsx'),
+      entry: resolve(import.meta.dirname, 'src/index.tsx'),
       name: 'ReactGitHubRibbons',
       formats: ['es', 'cjs'],
       fileName: (format) => {

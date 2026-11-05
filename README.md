@@ -1,123 +1,106 @@
 # React GitHub Ribbons
 
-Simple React Component to add GitHub Ribbon for your React Application.
+A tiny React component that renders the classic "Fork me on GitHub" ribbon.
 
 Ref: https://github.blog/2008-12-19-github-ribbons/
+
+- Works with React 18 and 19
+- Renders in the browser, in server-side rendering and in React Server Components
+- Ships ESM, CommonJS and TypeScript declarations for both
 
 ## Install
 
 ```bash
-$ yarn add react-github-ribbons
+npm install react-github-ribbons
 ```
 
 ## Usage
 
 ```tsx
-import 'react-app-polyfill/ie11';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import GitHubRibbon from 'react-github-ribbons';
 
-const App = () => {
-  return (
-    <div>
-      <GitHubRibbon href="https://example.com" />
-    </div>
-  );
-};
+const App = () => (
+  <div>
+    <GitHubRibbon href="https://github.com/your/repo" />
+  </div>
+);
 ```
 
-### Ribbon color & position
-We can change the color and position
+The ribbon is absolutely positioned at the top corner of the nearest
+positioned ancestor (or the page).
+
+### Color and position
 
 ```tsx
 // Default
-<GitHubRibbon href="example.com" color="black" position="right"/>
+<GitHubRibbon href="https://github.com/your/repo" color="black" position="right" />
 
-// Orange and left
-<GitHubRibbon href="example.com" color="orange" position="left" />
-
-// White and right
-<GitHubRibbon href="example.com" color="white" position="right" />
+// Orange, left
+<GitHubRibbon href="https://github.com/your/repo" color="orange" position="left" />
 ```
 
-### Link parameters
+| Prop       | Type                                                           | Default               |
+| ---------- | -------------------------------------------------------------- | --------------------- |
+| `href`     | `string` (required)                                            |                       |
+| `color`    | `'black' \| 'red' \| 'green' \| 'orange' \| 'grey' \| 'white'` | `'black'`             |
+| `position` | `'left' \| 'right'`                                            | `'right'`             |
+| `alt`      | `string`                                                       | `'Fork me on GitHub'` |
 
-The component will proxy `a` tag properties.
+### Anchor attributes, style and ref
+
+Any other `<a>` attribute is passed through. `style` is merged on top of the
+default positioning, so you can add or override individual properties.
+`ref` is forwarded to the `<a>` element.
 
 ```tsx
 <GitHubRibbon
+  href="https://github.com/your/repo"
   target="_blank"
   rel="noopener noreferrer"
-  className="a-tag-link"
-  href="example.com"
-  color="orange"
-  position="left"
-/>
+  className="github-ribbon"
+  style={{ zIndex: 10 }}
+/>;
 ```
 
-And you can import the property types.
+The prop type is exported:
 
 ```tsx
-import GitHubRibbon, { GitHubRibbonProps } from 'react-github-ribbons';
+import GitHubRibbon, { type GitHubRibbonProps } from 'react-github-ribbons';
 
-const App = () => {
-  const props: GitHubRibbonProps = {
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "a-tag-link",
-    href: "example.com",
-    color: "orange",
-    position: "left",
-  }
-  return (
-    <div>
-      <GitHubRibbon {...props} />
-    </div>
-  );
+const props: GitHubRibbonProps = {
+  href: 'https://github.com/your/repo',
+  color: 'orange',
+  position: 'left',
 };
+
+const App = () => <GitHubRibbon {...props} />;
 ```
 
 ## Development
 
-This project uses modern tooling:
-
-- **Vite** - Fast build tool and dev server
-- **Vitest** - Lightning-fast unit testing
-- **Biome** - Fast linter and formatter
-- **TypeScript 5** - Type safety
-- **React 18** - Latest React features
-
-### Available Scripts
-
 ```bash
-# Development mode (watch mode)
-npm run dev
-
-# Build the library
-npm run build
-
-# Run tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Lint code
-npm run lint
-
-# Lint and auto-fix
-npm run lint:fix
-
-# Format code
-npm run format
+npm ci
+npm run lint            # Biome lint + format check
+npm run typecheck       # tsc
+npm test                # Vitest
+npm run build           # Vite library build -> dist/
+npm run check:exports   # verify published entry points and types
 ```
 
-### Development Workflow
+## Release
 
-1. Make changes in `/src`
-2. Run `npm run dev` to build in watch mode
-3. Run `npm test` to verify tests pass
-4. Run `npm run lint` to check code quality
+Releases are published from GitHub Actions (`.github/workflows/release.yml`)
+using npm trusted publishing, triggered by a `v*` tag.
 
-The library will be built to `/dist` with both ESM and CommonJS formats.
+1. One-time setup: on npmjs.com, open the package settings and add a trusted
+   publisher for GitHub Actions with repository `wpkyoto/react-github-ribbons`
+   and workflow `release.yml`.
+2. Update `CHANGELOG.md`, then bump the version and push the tag:
+
+   ```bash
+   npm version 0.4.0
+   git push --follow-tags
+   ```
+
+Publishing from a local machine also works: `npm publish` runs lint, tests and
+the build first (`prepublishOnly`).

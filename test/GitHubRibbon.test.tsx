@@ -1,4 +1,6 @@
 import { render } from '@testing-library/react';
+import { createRef } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { GitHubRibbon } from '../src';
 
@@ -225,7 +227,33 @@ describe('GitHubRibbon', () => {
       // Assert
       // カスタムスタイルが正しく適用されることを確認
       expect(styleText).toContain('z-index: 999');
-      // ベーススタイルは他のテストで確認済みのため、ここではカスタムスタイルの適用を確認
+      // カスタムスタイルを渡してもベーススタイルが失われないことを確認
+      expect(link?.style.position).toBe('absolute');
+      expect(link?.style.top).toBe('0px');
+      expect(link?.style.right).toBe('0px');
+    });
+
+    it('should let custom style override base style', () => {
+      const { container } = render(
+        <GitHubRibbon href="https://github.com/test/repo" style={{ top: 10 }} />
+      );
+      expect(container.querySelector('a')?.style.top).toBe('10px');
+    });
+
+    it('should not set right when position is left', () => {
+      const { container } = render(
+        <GitHubRibbon href="https://github.com/test/repo" position="left" />
+      );
+      const link = container.querySelector('a');
+      expect(link?.style.left).toBe('0px');
+      expect(link?.style.right).toBe('');
+    });
+
+    it('should not set left when position is right', () => {
+      const { container } = render(
+        <GitHubRibbon href="https://github.com/test/repo" position="right" />
+      );
+      expect(container.querySelector('a')?.style.left).toBe('');
     });
   });
 
@@ -336,6 +364,62 @@ describe('GitHubRibbon', () => {
       expect(link?.style.right).toBe('0px');
       expect(img?.getAttribute('src')).toContain('right');
       expect(img?.getAttribute('src')).toContain('white');
+    });
+  });
+
+  describe('DOMに渡す属性', () => {
+    it('should not leak color and position as DOM attributes', () => {
+      const { container } = render(
+        <GitHubRibbon
+          href="https://github.com/test/repo"
+          color="red"
+          position="left"
+        />
+      );
+      const link = container.querySelector('a');
+      expect(link?.hasAttribute('color')).toBe(false);
+      expect(link?.hasAttribute('position')).toBe(false);
+    });
+
+    it('should not render legacy WordPress attributes on img', () => {
+      const { container } = render(
+        <GitHubRibbon href="https://github.com/test/repo" />
+      );
+      const img = container.querySelector('img');
+      expect(img?.hasAttribute('data-recalc-dims')).toBe(false);
+      expect(img?.hasAttribute('class')).toBe(false);
+    });
+  });
+
+  describe('altプロパティ', () => {
+    it('should allow overriding alt text', () => {
+      const { container } = render(
+        <GitHubRibbon href="https://github.com/test/repo" alt="View source" />
+      );
+      expect(container.querySelector('img')?.getAttribute('alt')).toBe(
+        'View source'
+      );
+    });
+  });
+
+  describe('ref', () => {
+    it('should forward ref to the anchor element', () => {
+      const ref = createRef<HTMLAnchorElement>();
+      render(<GitHubRibbon href="https://github.com/test/repo" ref={ref} />);
+      expect(ref.current).toBeInstanceOf(HTMLAnchorElement);
+      expect(ref.current?.getAttribute('href')).toBe(
+        'https://github.com/test/repo'
+      );
+    });
+  });
+
+  describe('サーバーレンダリング', () => {
+    it('should render to static markup without hooks', () => {
+      const html = renderToStaticMarkup(
+        <GitHubRibbon href="https://github.com/test/repo" color="green" />
+      );
+      expect(html).toContain('href="https://github.com/test/repo"');
+      expect(html).toContain('forkme_right_green_007200.png');
     });
   });
 });
